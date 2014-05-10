@@ -59,6 +59,15 @@ alias pu='pushd'
 alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
 
+# PERSONAL STUFF
+alias h='history 10'
+alias g='grep'
+alias hg='history | grep'
+alias ls='gls'
+
+
+
+
 # ls
 if is-callable 'dircolors'; then
   # GNU Core Utilities
@@ -90,7 +99,7 @@ else
   fi
 fi
 
-alias l='ls -1A'         # Lists in one column, hidden files.
+alias l='ls -C'         # Lists in one column, hidden files.
 alias ll='ls -lh'        # Lists human readable sizes.
 alias lr='ll -R'         # Lists human readable sizes, recursively.
 alias la='ll -A'         # Lists human readable sizes, hidden files.
