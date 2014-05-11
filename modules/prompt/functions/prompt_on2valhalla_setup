@@ -51,8 +51,8 @@ function calc_elapsed_time {
 
 # Check for features and set the prompt to the arguments sent
 function prompt_on2valhalla_set_rprompt {
-  if [ -z "$git_info" ]; then
-    RPROMPT='${git_info[status]} ${git_info[prompt]} '$@
+  if [ $+git_info ]; then
+    RPROMPT='${git_info[status]}  ${git_info[prompt]} '$@
   else
     RPROMPT=$@
   fi
@@ -67,7 +67,6 @@ function prompt_on2valhalla_set_rprompt {
 # Make PWD single letter dirs except last -sorin
 function prompt_on2valhalla_pwd {
   local pwd="${PWD/#$HOME/~}"
-  
 
   if [ "$pwd" = "~" ]; then
     _prompt_on2valhalla_pwd="$pwd"
@@ -98,6 +97,8 @@ function prompt_on2valhalla_preexec {
 function prompt_on2valhalla_precmd {
   if [[ "$_prompt_on2valhalla_calc_print" = true ]]; then
     # Reset the rprompt if the timer changed it
+    # Call periodic to set the git info just in case
+    prompt_on2valhalla_periodic
     prompt_on2valhalla_set_rprompt '[%D{%L:%M:%S}]'
     _prompt_on2valhalla_calc_print=false
   fi
@@ -174,8 +175,8 @@ function prompt_on2valhalla_setup {
   zstyle ':prezto:module:git:info:action' format '! %s'
   zstyle ':prezto:module:git:info:ahead' format '⬆'
   zstyle ':prezto:module:git:info:behind' format '⬇'
-  zstyle ':prezto:module:git:info:branch' format '⭠ %b'
-  zstyle ':prezto:module:git:info:commit' format '➦ %.7c'
+  zstyle ':prezto:module:git:info:branch' format '%b'
+  zstyle ':prezto:module:git:info:commit' format '%.7c'
   zstyle ':prezto:module:git:info:position' format '%p'
   zstyle ':prezto:module:git:info:stashed' format 's'
   # Verbose Contexts
@@ -188,7 +189,7 @@ function prompt_on2valhalla_setup {
   zstyle ':prezto:module:git:info:untracked' format '?'
 
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' '%b%c' \
+    'prompt' '%b⭠ %c' \
     'status' ' %A%B%S%a%d%m%r%U%u'
 
 
