@@ -1,41 +1,124 @@
 #
-# A simple theme that displays relevant, contextual information.
+# An amalgamation of various others prompt setups
+# Origins of borrowed code are notated (-NAME) in the comments
+# Although borrowings are heavily modified at times
 #
 # Authors:
+#   Jason Mann <on2valhalla@gmail.com>
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 # Screenshots:
-#   http://i.imgur.com/nBEEZ.png
+#   http://i.imgur.com/zLZNK.png
 #
-
 # Load dependencies.
 pmodload 'helper'
 
-function prompt_sorin_pwd {
-  local pwd="${PWD/#$HOME/~}"
+CURRENT_BG='NONE'
+SEGMENT_SEPARATOR='⮀'
 
-  if [[ "$pwd" == (#m)[/~] ]]; then
-    _prompt_sorin_pwd="$MATCH"
-    unset MATCH
+# For periodic hook
+PERIOD=2
+
+
+
+############################################################
+#                     Utilities                            #
+############################################################ 
+# Calculate the elapsed time from seconds -paradox
+function calc_elapsed_time {
+  local mid=""
+
+  if [[ $_prompt_on2valhalla_timer -ge 3600 ]]; then
+    let "timer_hours = $_prompt_on2valhalla_timer / 3600"
+    let "remainder = $_prompt_on2valhalla_timer % 3600"
+    let "timer_minutes = $remainder / 60"
+    let "timer_seconds = $remainder % 60"
+    mid="elapsed time: ${timer_hours}h ${timer_minutes}m ${timer_seconds}s"
+  elif [[ $_prompt_on2valhalla_timer -ge 60 ]]; then
+    let "timer_minutes = $_prompt_on2valhalla_timer / 60"
+    let "timer_seconds = $_prompt_on2valhalla_timer % 60"
+    mid="elapsed time: ${timer_minutes}m ${timer_seconds}s"
   else
-    _prompt_sorin_pwd="${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}/${pwd:t}"
+    mid="elapsed time: ${_prompt_on2valhalla_timer}s"
+  fi
+
+  local pre="%{%B%F{red}%}"
+  local post="%{%f%b%}"
+
+  # Set RPATH to the elapsed time
+  prompt_on2valhalla_set_rprompt ${pre}${mid}${post}
+}
+
+# Check for features and set the prompt to the arguments sent
+function prompt_on2valhalla_set_rprompt {
+  if [ -z "$git_info" ]; then
+    RPROMPT='${git_info[status]} ${git_info[prompt]} '$@
+  else
+    RPROMPT=$@
   fi
 }
 
-function prompt_sorin_precmd {
-  setopt LOCAL_OPTIONS
-  unsetopt XTRACE KSH_ARRAYS
 
-  # Format PWD.
-  prompt_sorin_pwd
 
+############################################################
+#                     HOOKS                                #
+############################################################ 
+# Makes more sense to only update PWD when we change dirs
+# Make PWD single letter dirs except last -sorin
+function prompt_on2valhalla_pwd {
+  local pwd="${PWD/#$HOME/~}"
+  
+
+  if [ "$pwd" = "~" ]; then
+    _prompt_on2valhalla_pwd="$pwd"
+    unset MATCH
+  else
+    _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}/${pwd:t}"
+  fi
+}
+
+# For more sane git checks:
+# Will not slow down the command prompt, but instead
+# check on git every $PERIOD seconds
+function prompt_on2valhalla_periodic {
   # Get Git repository information.
   if (( $+functions[git-info] )); then
     git-info
   fi
 }
 
-function prompt_sorin_setup {
+# Executes before every command
+function prompt_on2valhalla_preexec {
+  _prompt_on2valhalla_start_time=$SECONDS
+  _prompt_on2valhalla_timer_running=true
+}
+
+
+# Executes before each prompt
+function prompt_on2valhalla_precmd {
+  if [[ "$_prompt_on2valhalla_calc_print" = true ]]; then
+    # Reset the rprompt if the timer changed it
+    prompt_on2valhalla_set_rprompt '[%D{%L:%M:%S}]'
+    _prompt_on2valhalla_calc_print=false
+  fi
+
+  # Get timer result
+  if [[ "$_prompt_on2valhalla_timer_running" = true ]]; then
+    _prompt_on2valhalla_timer=$(($SECONDS-$_prompt_on2valhalla_start_time))
+    if [[ $_prompt_on2valhalla_timer -gt 10 ]]; then
+      calc_elapsed_time
+      _prompt_on2valhalla_calc_print=true
+    fi
+  fi
+
+  # Reset Timer because no command was run for longer than 10 secs
+  _prompt_on2valhalla_timer_running=false
+}
+
+
+# Main prompt setup
+function prompt_on2valhalla_setup {
+  _prompt_on2valhalla_start_time=$SECONDS
   setopt LOCAL_OPTIONS
   unsetopt XTRACE KSH_ARRAYS
   prompt_opts=(cr percent subst)
@@ -43,39 +126,115 @@ function prompt_sorin_setup {
   # Load required functions.
   autoload -Uz add-zsh-hook
 
-  # Add hook for calling git-info before each command.
-  add-zsh-hook precmd prompt_sorin_precmd
+  # Add hooks: Docs say these should
+  # load automatically with prompt, but they do not
+  add-zsh-hook chpwd prompt_on2valhalla_pwd
+  add-zsh-hook periodic prompt_on2valhalla_periodic
+  add-zsh-hook preexec prompt_on2valhalla_preexec
+  add-zsh-hook precmd prompt_on2valhalla_precmd
 
-  # Set editor-info parameters.
-  zstyle ':prezto:module:editor:info:completing' format '%B%F{red}...%f%b'
-  zstyle ':prezto:module:editor:info:keymap:primary' format ' %B%F{red}❯%F{yellow}❯%F{green}❯%f%b'
-  zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format ' %F{red}♺%f'
-  zstyle ':prezto:module:editor:info:keymap:alternate' format ' %B%F{green}❮%F{yellow}❮%F{red}❮%f%b'
+  # Use extended color pallete if available. -steef
+  # Colors are picked for Solarized theme.
+  if [[ $TERM = *256color* || $TERM = *rxvt* ]]; then
+    _prompt_on2valhalla_colors=(
+      "%F{81}"  # Turquoise
+      "%F{166}" # Orange
+      "%F{135}" # Purple
+      "%F{161}" # Hotpink
+      "%F{118}" # Limegreen
+    )
+  else
+    _prompt_on2valhalla_colors=(
+      "%F{cyan}"
+      "%F{yellow}"
+      "%F{magenta}"
+      "%F{red}"
+      "%F{green}"
+    )
+  fi
 
-  # Set git-info parameters.
+
+  # Customizable parameters. -nicoulaj
+  local max_path_chars=30
+  local user_lead="${1:-❯❯}"
+  local ruser_lead="${2:-❮❮}"
+  local root_lead="${user_lead}${user_lead}"
+  local rroot_lead="${ruser_lead}${ruser_lead}"
+
+  # Set editor-info parameters. -sorin
+  # switches direction of standard character for alternate mode
+  # you can override this by passing to the theme
+  # This also checks for privileges and doubles the character if so
+  zstyle ':prezto:module:editor:info:completing' format '%{%B%F{red}%}...%{%f%b%}'
+  zstyle ':prezto:module:editor:info:keymap:primary' format "%(!;${root_lead};${user_lead})"
+  zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format '%{%F%}{red}♺%{%f%}'
+  zstyle ':prezto:module:editor:info:keymap:alternate' format "%(!;${rroot_lead};${rruser_lead})"
+
+  # Git
+  zstyle ':prezto:module:git:info:action' format '! %s'
+  zstyle ':prezto:module:git:info:ahead' format '⬆'
+  zstyle ':prezto:module:git:info:behind' format '⬇'
+  zstyle ':prezto:module:git:info:branch' format '⭠ %b'
+  zstyle ':prezto:module:git:info:commit' format '➦ %.7c'
+  zstyle ':prezto:module:git:info:position' format '%p'
+  zstyle ':prezto:module:git:info:stashed' format 's'
+  # Verbose Contexts
   zstyle ':prezto:module:git:info' verbose 'yes'
-  zstyle ':prezto:module:git:info:action' format ':%%B%F{yellow}%s%f%%b'
-  zstyle ':prezto:module:git:info:added' format ' %%B%F{green}✚%f%%b'
-  zstyle ':prezto:module:git:info:ahead' format ' %%B%F{yellow}⬆%f%%b'
-  zstyle ':prezto:module:git:info:behind' format ' %%B%F{yellow}⬇%f%%b'
-  zstyle ':prezto:module:git:info:branch' format ':%F{green}%b%f'
-  zstyle ':prezto:module:git:info:commit' format ':%F{green}%.7c%f'
-  zstyle ':prezto:module:git:info:deleted' format ' %%B%F{red}✖%f%%b'
-  zstyle ':prezto:module:git:info:modified' format ' %%B%F{blue}✱%f%%b'
-  zstyle ':prezto:module:git:info:position' format ':%F{red}%p%f'
-  zstyle ':prezto:module:git:info:renamed' format ' %%B%F{magenta}➜%f%%b'
-  zstyle ':prezto:module:git:info:stashed' format ' %%B%F{cyan}✭%f%%b'
-  zstyle ':prezto:module:git:info:unmerged' format ' %%B%F{yellow}═%f%%b'
-  zstyle ':prezto:module:git:info:untracked' format ' %%B%F{white}◼%f%%b'
+  zstyle ':prezto:module:git:info:added' format '✚'
+  zstyle ':prezto:module:git:info:deleted' format '✖'
+  zstyle ':prezto:module:git:info:modified' format '✱'
+  zstyle ':prezto:module:git:info:renamed' format '➙'
+  zstyle ':prezto:module:git:info:unmerged' format '⤭'
+  zstyle ':prezto:module:git:info:untracked' format '?'
+
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' ' %F{blue}git%f$(coalesce "%b" "%p" "%c")%s' \
-    'rprompt' '%A%B%S%a%d%m%r%U%u'
+    'prompt' '%b%c' \
+    'status' ' %A%B%S%a%d%m%r%U%u'
+
 
   # Define prompts.
-  PROMPT='%F{cyan}${_prompt_sorin_pwd}%f${git_info:+${(e)git_info[prompt]}}%(!. %B%F{red}#%f%b.)${editor_info[keymap]} '
-  RPROMPT='${editor_info[overwrite]}%(?:: %F{red}⏎%f)${VIM:+" %B%F{green}V%f%b"}${git_info[rprompt]} [%D{%H:%M:%S}]'
-  SPROMPT='zsh: correct %F{red}%R%f to %F{green}%r%f [nyae]? '
+  # USERHOST='%n%{%B%F{red}%}@%M%{%b%f%}'
+  # PWD=/Users/on2valhalla
+  prompt_on2valhalla_pwd
+  PROMPT='%(0?..%{%F{red}%}✘%{%f%} )%(!;%{%F{yellow}%}⚡%{%f%}  ;)%(1j;%{%F{cyan}%}%j⚙%{%f%} ;)$_prompt_on2valhalla_pwd ${editor_info[keymap]} '
+  prompt_on2valhalla_set_rprompt '[%D{%L:%M:%S}]'
+  SPROMPT='zsh: correct %F{red}%R%f to %F{magenta}%r%f [nyae]? '
+
 }
 
-prompt_sorin_setup "$@"
+# Usage: prompt_on2valhalla_setup [line ending character]
+prompt_on2valhalla_setup "$@"
 
+
+
+
+  # Put it all together (From the Wiki)
+  # Main Contexts
+  # Name  Format    Code Description
+  # %s    action    Special action name
+  # %A    ahead     Commits ahead of remote count
+  # %B    behind    Commits behind of remote count
+  # %b    branch    Branch name
+  # %c    commit    Commit hash
+  # %p    position  Commits from the nearest tag count
+  # %R    remote    Remote name
+  # %S    stashed   Stashed states count
+
+  # Concise Contexts
+  # Name  Format Code Description
+  # %C  clean  Clean state
+  # %D  dirty  Dirty files count
+  # %i  indexed  Indexed files count
+  # %I  unindexed  Unindexed files count
+  # %u  untracked  Untracked files count
+
+  #   Verbose Contexts
+  # Name  Format    Code Description
+  # %a    added     Added files count
+  # %C    clean     Clean state
+  # %d    deleted   Deleted files count
+  # %D    dirty     Dirty files count
+  # %m    modified  Modified files count
+  # %r    renamed   Renamed files count
+  # %U    unmerged  Unmerged files count
+  # %u    untracked Untracked files count

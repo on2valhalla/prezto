@@ -15,3 +15,9 @@ fi
 # For powerline:
 #. /usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
 
+
+# For automated in prompt clock
+TMOUT=1
+TRAPALRM() {
+  zle reset-prompt
+}

@@ -21,6 +21,12 @@ export EDITOR='vim'
 export VISUAL='vim'
 export PAGER='less'
 
+
+# PERSONAL STUFF
+alias h='history 10'
+alias g='grep'
+alias hg='history 0| grep'
+
 #
 # Language
 #
