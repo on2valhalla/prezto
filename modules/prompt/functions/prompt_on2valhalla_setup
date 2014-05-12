@@ -158,7 +158,7 @@ function prompt_on2valhalla_setup {
   zstyle ':prezto:module:git:info:position' format "%p "
   zstyle ':prezto:module:git:info:stashed' format "$FP[dk_yellow]↧%S$FP[n] "
   # Concise
-  zstyle ':prezto:module:git:info:clean' format "$FP[40]✔︎$FP[n] "
+  zstyle ':prezto:module:git:info:clean' format "$FP[40]✓$FP[n] "
   # Verbose Contexts
   zstyle ':prezto:module:git:info' verbose 'yes'
   zstyle ':prezto:module:git:info:added' format "$FP[purple]✚$FP[n] "
