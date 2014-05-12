@@ -13,11 +13,9 @@
 # Load dependencies.
 pmodload 'helper'
 
-CURRENT_BG='NONE'
-SEGMENT_SEPARATOR='⮀'
+# CURRENT_BG='NONE'
+# SEGMENT_SEPARATOR='⮀'
 
-# For periodic hook
-PERIOD=2
 
 
 
@@ -42,22 +40,18 @@ function calc_elapsed_time {
     mid="elapsed time: ${_prompt_on2valhalla_timer}s"
   fi
 
-  local pre="%{%B%F{red}%}"
-  local post="%{%f%b%}"
-
   # Set RPATH to the elapsed time
-  prompt_on2valhalla_set_rprompt ${pre}${mid}${post}
+  prompt_on2valhalla_set_rprompt $FP[b]$FP[red]${mid}$FP[nb]$FP[n]
 }
 
 # Check for features and set the prompt to the arguments sent
 function prompt_on2valhalla_set_rprompt {
-  if [ $+git_info ]; then
-    RPROMPT='${git_info[status]}  ${git_info[prompt]} '$@
+  if [ $#git_info -gt 0 ]; then
+    RPROMPT=${git_info[status]}${git_info[prompt]}$@
   else
     RPROMPT=$@
   fi
 }
-
 
 
 ############################################################
@@ -79,6 +73,7 @@ function prompt_on2valhalla_pwd {
 # For more sane git checks:
 # Will not slow down the command prompt, but instead
 # check on git every $PERIOD seconds
+PERIOD=1
 function prompt_on2valhalla_periodic {
   # Get Git repository information.
   if (( $+functions[git-info] )); then
@@ -95,11 +90,11 @@ function prompt_on2valhalla_preexec {
 
 # Executes before each prompt
 function prompt_on2valhalla_precmd {
+  prompt_on2valhalla_set_rprompt '[%*]'
+
   if [[ "$_prompt_on2valhalla_calc_print" = true ]]; then
     # Reset the rprompt if the timer changed it
     # Call periodic to set the git info just in case
-    prompt_on2valhalla_periodic
-    prompt_on2valhalla_set_rprompt '[%D{%L:%M:%S}]'
     _prompt_on2valhalla_calc_print=false
   fi
 
@@ -121,6 +116,7 @@ function prompt_on2valhalla_precmd {
 function prompt_on2valhalla_setup {
   _prompt_on2valhalla_start_time=$SECONDS
   setopt LOCAL_OPTIONS
+  setopt ZLE
   unsetopt XTRACE KSH_ARRAYS
   prompt_opts=(cr percent subst)
 
@@ -134,31 +130,13 @@ function prompt_on2valhalla_setup {
   add-zsh-hook preexec prompt_on2valhalla_preexec
   add-zsh-hook precmd prompt_on2valhalla_precmd
 
-  # Use extended color pallete if available. -steef
-  # Colors are picked for Solarized theme.
-  if [[ $TERM = *256color* || $TERM = *rxvt* ]]; then
-    _prompt_on2valhalla_colors=(
-      "%F{81}"  # Turquoise
-      "%F{166}" # Orange
-      "%F{135}" # Purple
-      "%F{161}" # Hotpink
-      "%F{118}" # Limegreen
-    )
-  else
-    _prompt_on2valhalla_colors=(
-      "%F{cyan}"
-      "%F{yellow}"
-      "%F{magenta}"
-      "%F{red}"
-      "%F{green}"
-    )
-  fi
-
-
   # Customizable parameters. -nicoulaj
   local max_path_chars=30
-  local user_lead="${1:-❯❯}"
-  local ruser_lead="${2:-❮❮}"
+  local color_path="$FP[blue]"
+  local color_left="$FP[dk_orange]"
+  local color_right="$FP[orange]"
+  local user_lead="${1:-${color_left}❯$FP[n]}${1:-${color_right}❯$FP[n]}"
+  local ruser_lead="${2:-${color_right}❮$FP[n]${color_left}❮$FP[n]}"
   local root_lead="${user_lead}${user_lead}"
   local rroot_lead="${ruser_lead}${ruser_lead}"
 
@@ -166,76 +144,75 @@ function prompt_on2valhalla_setup {
   # switches direction of standard character for alternate mode
   # you can override this by passing to the theme
   # This also checks for privileges and doubles the character if so
-  zstyle ':prezto:module:editor:info:completing' format '%{%B%F{red}%}...%{%f%b%}'
+  zstyle ':prezto:module:editor:info:completing' format "$FP[b]$FP[red]...$FP[n]$FP[nb]"
   zstyle ':prezto:module:editor:info:keymap:primary' format "%(!;${root_lead};${user_lead})"
-  zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format '%{%F%}{red}♺%{%f%}'
-  zstyle ':prezto:module:editor:info:keymap:alternate' format "%(!;${rroot_lead};${rruser_lead})"
+  zstyle ':prezto:module:editor:info:keymap:primary:overwrite' format "$FP[b]$FP[red]♺$FP[n]$FP[nb]"
+  zstyle ':prezto:module:editor:info:keymap:alternate' format "%(!;${rroot_lead};${ruser_lead})"
 
   # Git
-  zstyle ':prezto:module:git:info:action' format '! %s'
-  zstyle ':prezto:module:git:info:ahead' format '⬆'
-  zstyle ':prezto:module:git:info:behind' format '⬇'
-  zstyle ':prezto:module:git:info:branch' format '%b'
-  zstyle ':prezto:module:git:info:commit' format '%.7c'
-  zstyle ':prezto:module:git:info:position' format '%p'
-  zstyle ':prezto:module:git:info:stashed' format 's'
+  zstyle ':prezto:module:git:info:action' format "! %s "
+  zstyle ':prezto:module:git:info:ahead' format "$FP[dk_green]⬆$FP[n] "
+  zstyle ':prezto:module:git:info:behind' format "$FP[red]⬇$FP[n] "
+  zstyle ':prezto:module:git:info:branch' format "$FP[black]%b$FP[n]"
+  zstyle ':prezto:module:git:info:commit' format "$FP[grey]⭠ %.7c$FP[n]"
+  zstyle ':prezto:module:git:info:position' format "%p "
+  zstyle ':prezto:module:git:info:stashed' format "$FP[dk_yellow]↧%S$FP[n] "
+  # Concise
+  zstyle ':prezto:module:git:info:clean' format "$FP[40]✔︎$FP[n] "
   # Verbose Contexts
   zstyle ':prezto:module:git:info' verbose 'yes'
-  zstyle ':prezto:module:git:info:added' format '✚'
-  zstyle ':prezto:module:git:info:deleted' format '✖'
-  zstyle ':prezto:module:git:info:modified' format '✱'
-  zstyle ':prezto:module:git:info:renamed' format '➙'
-  zstyle ':prezto:module:git:info:unmerged' format '⤭'
-  zstyle ':prezto:module:git:info:untracked' format '?'
+  zstyle ':prezto:module:git:info:added' format "$FP[purple]✚$FP[n] "
+  zstyle ':prezto:module:git:info:deleted' format "$FP[burgundy]✖$FP[n] "
+  zstyle ':prezto:module:git:info:modified' format "$FP[yellow]∴$FP[n] "
+  zstyle ':prezto:module:git:info:renamed' format "$FP[dk_orange]↪$FP[n] "
+  zstyle ':prezto:module:git:info:unmerged' format "$FP[lt_red]⭃$FP[n] "
+  zstyle ':prezto:module:git:info:untracked' format "$FP[magenta]∉$FP[n] "
 
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' '%b⭠ %c' \
-    'status' ' %A%B%S%a%d%m%r%U%u'
-
+    'prompt' "%b%c " \
+    'status' "%C%A%B%S%m%a%d%r%U%u"
 
   # Define prompts.
   # USERHOST='%n%{%B%F{red}%}@%M%{%b%f%}'
   # PWD=/Users/on2valhalla
   prompt_on2valhalla_pwd
-  PROMPT='%(0?..%{%F{red}%}✘%{%f%} )%(!;%{%F{yellow}%}⚡%{%f%}  ;)%(1j;%{%F{cyan}%}%j⚙%{%f%} ;)$_prompt_on2valhalla_pwd ${editor_info[keymap]} '
-  prompt_on2valhalla_set_rprompt '[%D{%L:%M:%S}]'
-  SPROMPT='zsh: correct %F{red}%R%f to %F{magenta}%r%f [nyae]? '
-
+  PROMPT="%(0?;;$FP[red]✘$FP[n] )%(!;$FP[yellow]⚡$FP[n]  ;)%(1j;$FP[cyan]%j⚙$FP[n] ;)$FP[blue]"'$_prompt_on2valhalla_pwd'"$FP[n] "'$editor_info[keymap]'"$FP[n] "
+  prompt_on2valhalla_set_rprompt '[%*]'
+  SPROMPT='zsh: correct $FP[red]%R$FP[n] to $FP[magenta]%r$FP[n] [nyae]? '
+  # print "$PROMPT\n$RPROMPT"
 }
 
 # Usage: prompt_on2valhalla_setup [line ending character]
 prompt_on2valhalla_setup "$@"
 
 
+# Git module symbols
+# Main Contexts
+# Name  Format    Code Description
+# %s    action    Special action name
+# %A    ahead     Commits ahead of remote count
+# %B    behind    Commits behind of remote count
+# %b    branch    Branch name
+# %c    commit    Commit hash
+# %p    position  Commits from the nearest tag count
+# %R    remote    Remote name
+# %S    stashed   Stashed states count
 
+# Concise Contexts
+# Name  Format Code Description
+# %C  clean  Clean state
+# %D  dirty  Dirty files count
+# %i  indexed  Indexed files count
+# %I  unindexed  Unindexed files count
+# %u  untracked  Untracked files count
 
-  # Put it all together (From the Wiki)
-  # Main Contexts
-  # Name  Format    Code Description
-  # %s    action    Special action name
-  # %A    ahead     Commits ahead of remote count
-  # %B    behind    Commits behind of remote count
-  # %b    branch    Branch name
-  # %c    commit    Commit hash
-  # %p    position  Commits from the nearest tag count
-  # %R    remote    Remote name
-  # %S    stashed   Stashed states count
-
-  # Concise Contexts
-  # Name  Format Code Description
-  # %C  clean  Clean state
-  # %D  dirty  Dirty files count
-  # %i  indexed  Indexed files count
-  # %I  unindexed  Unindexed files count
-  # %u  untracked  Untracked files count
-
-  #   Verbose Contexts
-  # Name  Format    Code Description
-  # %a    added     Added files count
-  # %C    clean     Clean state
-  # %d    deleted   Deleted files count
-  # %D    dirty     Dirty files count
-  # %m    modified  Modified files count
-  # %r    renamed   Renamed files count
-  # %U    unmerged  Unmerged files count
-  # %u    untracked Untracked files count
+#   Verbose Contexts
+# Name  Format    Code Description
+# %a    added     Added files count
+# %C    clean     Clean state
+# %d    deleted   Deleted files count
+# %D    dirty     Dirty files count
+# %m    modified  Modified files count
+# %r    renamed   Renamed files count
+# %U    unmerged  Unmerged files count
+# %u    untracked Untracked files count

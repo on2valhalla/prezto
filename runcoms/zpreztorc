@@ -23,6 +23,10 @@ zstyle ':prezto:*:*' color 'yes'
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
+# -gnu-utility before utility
+# -syntax-highlighting must be last before prompt (excepting history-sub...)
+# -history-substring-search must follow syntax-highlighting
+# -prompt is always last
 zstyle ':prezto:load' pmodule \
       'environment' \
       'terminal' \
@@ -30,6 +34,7 @@ zstyle ':prezto:load' pmodule \
       'history' \
       'directory' \
       'spectrum' \
+      'gnu-utility' \
       'utility' \
       'completion' \
       'homebrew' \
@@ -65,7 +70,7 @@ zstyle ':prezto:module:editor' dot-expansion 'yes'
 #
 
 # Ignore submodules when they are 'dirty', 'untracked', 'all', or 'none'.
-zstyle ':prezto:module:git:status:ignore' submodules 'all'
+zstyle ':prezto:module:git:status:ignore' submodules 'none'
 
 #
 # GNU Utility
