@@ -60,9 +60,9 @@ alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
 
 # PERSONAL STUFF
-alias h='history 10'
+alias h='history -10'
 alias g='grep'
-alias hg='history | grep'
+alias hg='history 0 | grep'
 alias ls='gls'
 
 

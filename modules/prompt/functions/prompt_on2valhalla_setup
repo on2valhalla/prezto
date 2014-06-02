@@ -7,8 +7,6 @@
 #   Jason Mann <on2valhalla@gmail.com>
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
-# Screenshots:
-#   http://i.imgur.com/zLZNK.png
 #
 # Load dependencies.
 pmodload 'helper'
@@ -21,7 +19,7 @@ pmodload 'helper'
 
 ############################################################
 #                     Utilities                            #
-############################################################ 
+############################################################
 # Calculate the elapsed time from seconds -paradox
 function calc_elapsed_time {
   local mid=""
@@ -56,18 +54,51 @@ function prompt_on2valhalla_set_rprompt {
 
 ############################################################
 #                     HOOKS                                #
-############################################################ 
+############################################################
 # Makes more sense to only update PWD when we change dirs
 # Make PWD single letter dirs except last -sorin
+CITC_ROOT=/google/src/cloud/${USER}
+SRCFS_HEAD_ROOT=/google/src/head/depot
 function prompt_on2valhalla_pwd {
-  local pwd="${PWD/#$HOME/~}"
+  # print $PWD
+  local prompt_dir="$PWD"
+  # print $prompt_dir
 
-  if [ "$pwd" = "~" ]; then
-    _prompt_on2valhalla_pwd="$pwd"
-    unset MATCH
-  else
-    _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}/${pwd:t}"
-  fi
+  case $prompt_dir in
+    $HOME) _prompt_on2valhalla_pwd=$FP[pink]'~';;
+    $HOME/*)
+      _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${prompt_dir##$HOME\/};;
+    $CITC_ROOT) _prompt_on2valhalla_pwd=$FP[pink]'citc~';;
+    $CITC_ROOT/*)
+      prompt_dir=${prompt_dir##$CITC_ROOT/};
+      local client=${prompt_dir%%\/*};
+      local r_dir=${${prompt_dir##$client(\/|)}/google3/g3};
+      _prompt_on2valhalla_pwd=$FP[pink]$client':'$FP[blue]$r_dir$FP[n];;
+    *) _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)prompt_dir}##.#?}:h}%/}/${prompt_dir:t}" ;;
+  esac
+
+  # if [[ $prompt_dir = $HOME ]]; then
+  #   _prompt_on2valhalla_pwd="~"
+  # elif [[ $prompt_dir = $HOME(#b)/(**/*) ]]; then
+  #   _prompt_on2valhalla_pwd="~/"$match[1]
+  # elif [[ $prompt_dir = $CITC_ROOT ]]; then
+  #   _prompt_on2valhalla_pwd='citc:'
+  # elif [[ $prompt_dir = $CITC_ROOT/ ]]; then
+  #   #statements
+  #   #statements
+  # # if [ "${prompt_dir/$CITC_ROOT}" ]
+
+  # if [ "$prompt_dir" = "~" ]; then
+  #   _prompt_on2valhalla_pwd="$prompt_dir"
+  # # elif [[ "$prompt_dir" =~ "/google/src/cloud/jmann/*/*" ]]; then
+  # #   #replace google src with shortening
+  # #   local path_prompt=$(print -P '%~')
+  # #   local subst=${path_prompt/#${CITC_ROOT}/citc:}
+  # #   _prompt_on2valhalla_pwd=${path_prompt/#${SRCFS_HEAD_ROOT}/srcfs-head:}
+  # else
+  #   _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)prompt_dir}##.#?}:h}%/}/${prompt_dir:t}"
+  #   # print $_prompt_on2valhalla_pwd
+  # fi
 }
 
 # For more sane git checks:
@@ -79,6 +110,7 @@ function prompt_on2valhalla_periodic {
   if (( $+functions[git-info] )); then
     git-info
   fi
+  _prompt_on2valhalla_timer=$(($SECONDS - $_prompt_on2valhalla_start_time))
 }
 
 # Executes before every command
@@ -115,6 +147,7 @@ function prompt_on2valhalla_precmd {
 # Main prompt setup
 function prompt_on2valhalla_setup {
   _prompt_on2valhalla_start_time=$SECONDS
+  _prompt_on2valhalla_timer=0
   setopt LOCAL_OPTIONS
   setopt ZLE
   unsetopt XTRACE KSH_ARRAYS
@@ -175,6 +208,7 @@ function prompt_on2valhalla_setup {
   # Define prompts.
   # USERHOST='%n%{%B%F{red}%}@%M%{%b%f%}'
   # PWD=/Users/on2valhalla
+  setopt EXTENDED_GLOB
   prompt_on2valhalla_pwd
   PROMPT="%(0?;;$FP[red]✘$FP[n] )%(!;$FP[yellow]⚡$FP[n]  ;)%(1j;$FP[cyan]%j⚙$FP[n] ;)$FP[blue]"'$_prompt_on2valhalla_pwd'"$FP[n] "'$editor_info[keymap]'"$FP[n] "
   prompt_on2valhalla_set_rprompt '[%*]'

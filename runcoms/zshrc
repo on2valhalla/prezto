@@ -17,7 +17,43 @@ fi
 
 
 # For automated in prompt clock
-TMOUT=1
-TRAPALRM() {
-  zle reset-prompt
+# TMOUT=1
+# TRAPALRM() {
+#   zle reset-prompt
+# }
+
+# MUCH CLEANER!!!!!!
+schedprompt() {
+  emulate -L zsh
+  zmodload -i zsh/sched
+
+  # Remove existing event, so that multiple calls to
+  # "schedprompt" work OK.  (You could put one in precmd to push
+  # the timer 30 seconds into the future, for example.)
+  integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
+  (( i )) && sched -$i
+
+  # if [[ $_prompt_on2valhalla_timer -gt 900 ]]; then
+  #   cmatrix
+  # fi
+
+  # Test that zle is running before calling the widget (recommended
+  # to avoid error messages).
+  # Otherwise it updates on entry to zle, so there's no loss.
+  zle && zle reset-prompt
+
+  # This ensures we're not too far off the start of the minute
+  sched +1 schedprompt
 }
+
+schedprompt
+
+
+# Google Stuff
+source /etc/bash_completion.d/g4d
+export TERM='xterm-256color'
+compdef g4=p4
+export TBL=/bigtable/srv-yh/content-syndication.content-devel
+
+autoload -U url-quote-magic
+zle -N self-insert url-quote-magic
