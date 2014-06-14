@@ -23,9 +23,18 @@ export PAGER='less'
 
 
 # PERSONAL STUFF
-alias h='history 10'
-alias g='grep'
+alias h='history -10'
 alias hg='history 0| grep'
+
+# Multithreaded tar command with progress bar
+function mptr() {
+  local f
+  for f in ${@[3,-1]}; do
+    tar $1 - $f -P | pv -s $(du -sb $f | awk '{print $1}') | pigz -p $2 > $f.tar.gz
+  done
+}
+
+
 
 #
 # Language

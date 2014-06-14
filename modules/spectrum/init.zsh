@@ -11,7 +11,7 @@ if [[ "$TERM" == 'dumb' ]]; then
   return 1
 fi
 
-typeset -gA FX FG BG FP
+typeset -gA FX FG BG FP BP
 
 FX=(
                                         none                         "\e[00m"
@@ -83,7 +83,35 @@ FP=(
     nb         '%{%b%}'
     )
 
+BP=(
+    default    '%{%K{000}%}'
+    black      '%{%K{016}%}'
+    burgundy   '%{%K{052}%}'
+    dk_red     '%{%K{088}%}'
+    lt_red     '%{%K{160}%}'
+    lt_purple  '%{%K{090}%}'
+    purple     '%{%K{057}%}'
+    dk_purple  '%{%K{017}%}'
+    dk_green   '%{%K{022}%}'
+    green      '%{%K{034}%}'
+    lt_green   '%{%K{047}%}'
+    dk_blue    '%{%K{021}%}'
+    lt_blue    '%{%K{075}%}'
+    lt_yellow  '%{%K{156}%}'
+    dk_yellow  '%{%K{178}%}'
+    brown      '%{%K{094}%}'
+    pink       '%{%K{177}%}'
+    hot_pink   '%{%K{165}%}'
+    fuchsia    '%{%K{127}%}'
+    orange     '%{%K{202}%}'
+    dk_orange  '%{%K{009}%}'
+    grey       '%{%K{240}%}'
+    dk_grey    '%{%K{235}%}'
+    n          '%{%k%}'
+    )
+
 FP[none]="$FP[n]"
+BP[none]="$BP[n]"
 FX[none]="$FX[none]"
 FG[none]="$FX[none]"
 BG[none]="$FX[none]"
@@ -94,11 +122,13 @@ for color in {0..255}; do
     FG[$colors[$index]]="\e[38;5;${color}m"
     BG[$colors[$index]]="\e[48;5;${color}m"
     FP[$colors[$index]]="%{%F{${color}}%}"
+    BP[$colors[$index]]="%{%K{${color}}%}"
   fi
 
   FG[$color]="\e[38;5;${color}m"
   BG[$color]="\e[48;5;${color}m"
   FP[$color]="%F{${color}}"
+  BP[$color]="%K{${color}}"
 done
 unset color{s,} index
 
@@ -113,7 +143,7 @@ function spectrum_ls() {
 
 # Show all 256 colors where the background is set to specific color
 function spectrum_bls() {
-  spectrum '%K'
+  spectrum ${(kv)BP}
 }
 
 # Usage: spectrum [color escape code]
@@ -147,9 +177,9 @@ function spectrum() {
       for col in {000..$cols}; do
         code=$(( row + ( rows + 1 ) * col + ( block * block_size ) ))
         if [[ $code -lt 8 ]]; then
-          print -Pn -- "${(l:2::0::0:)code}: ${(r:15:: :: :)colors[$(( code + 1 ))]} $pallete[$code]$ZSH_SPECTRUM_TEXT%f%k\t"
+          print -Pn -- "${(l:2::0::0:)code}: ${(r:15:: :: :)colors[$(( code + 1 ))]} $pallete[$code]$ZSH_SPECTRUM_TEXT$pallete[n]\t"
         elif [[ $code -lt 16 ]]; then
-          print -Pn -- "${(l:2::0::0:)code}: bright ${(r:8:: :::)colors[$(( code - 7 ))]} $pallete[$code]$ZSH_SPECTRUM_TEXT%f%k\t"
+          print -Pn -- "${(l:2::0::0:)code}: bright ${(r:8:: :::)colors[$(( code - 7 ))]} $pallete[$code]$ZSH_SPECTRUM_TEXT$pallete[n]\t"
         else
           continue
         fi
@@ -183,7 +213,7 @@ function spectrum() {
         if [[ $code -gt max_color ]]; then
           print -n "${(l:$total_len:: :: :)}"
         else
-          print -Pn -- "${(l:3::0::0:)code}: $pallete[$code]$ZSH_SPECTRUM_TEXT%f%k  "
+          print -Pn -- "${(l:3::0::0:)code}: $pallete[$code]$ZSH_SPECTRUM_TEXT$pallete[n]  "
         fi
       done
       print
@@ -197,7 +227,7 @@ function spectrum() {
 
   print "\n\n---- 35 Shades of Grey ----"
   for code in {232..255}; do
-    print -P -- "$code: $pallete[$code]$ZSH_SPECTRUM_TEXT%f%k"
+    print -P -- "$code: $pallete[$code]$ZSH_SPECTRUM_TEXT$pallete[n]"
   done
 
   print -- '\n\n---- Named Colors ($FP[name]) ----'

@@ -59,14 +59,6 @@ alias pu='pushd'
 alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
 
-# PERSONAL STUFF
-alias h='history 10'
-alias g='grep'
-alias hg='history | grep'
-alias ls='gls'
-
-
-
 
 # ls
 if is-callable 'dircolors'; then
