@@ -45,7 +45,7 @@ function calc_elapsed_time {
 # Check for features and set the prompt to the arguments sent
 function prompt_on2valhalla_set_rprompt {
   if [ $#git_info -gt 0 ]; then
-    RPROMPT=${git_info[status]}${git_info[prompt]}$@
+    RPROMPT="${git_info[status]}${git_info[prompt]} $@"
   else
     RPROMPT=$@
   fi
@@ -63,11 +63,15 @@ function prompt_on2valhalla_pwd {
   # print $PWD
   local prompt_dir="$PWD"
   # print $prompt_dir
+  local home='~/'
 
   case $prompt_dir in
-    $HOME) _prompt_on2valhalla_pwd=$FP[pink]'~';;
+    $HOME) _prompt_on2valhalla_pwd=$FP[pink]'~'$FP[n];;
+    $HOME/*/*)
+      _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${${${(@j:/:M)${(@s:/:)prompt_dir##$HOME\/}##.#?}:h}%\.}/${prompt_dir:t};;
     $HOME/*)
-      _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${prompt_dir##$HOME\/};;
+      _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${${${(@j:/:M)${(@s:/:)prompt_dir##$HOME\/}##.#?}:h}%\.}${prompt_dir:t};;
+      # _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${prompt_dir##$HOME\/};;
     $CITC_ROOT) _prompt_on2valhalla_pwd=$FP[pink]'citc~';;
     $CITC_ROOT/*)
       prompt_dir=${prompt_dir##$CITC_ROOT/};
@@ -124,10 +128,10 @@ function prompt_on2valhalla_preexec {
 function prompt_on2valhalla_precmd {
   prompt_on2valhalla_set_rprompt '[%*]'
 
-  if [[ "$_prompt_on2valhalla_calc_print" = true ]]; then
+  if [[ "$_prompt_on2valhalla_timer_print" = true ]]; then
     # Reset the rprompt if the timer changed it
     # Call periodic to set the git info just in case
-    _prompt_on2valhalla_calc_print=false
+    _prompt_on2valhalla_timer_print=false
   fi
 
   # Get timer result
@@ -135,7 +139,7 @@ function prompt_on2valhalla_precmd {
     _prompt_on2valhalla_timer=$(($SECONDS-$_prompt_on2valhalla_start_time))
     if [[ $_prompt_on2valhalla_timer -gt 10 ]]; then
       calc_elapsed_time
-      _prompt_on2valhalla_calc_print=true
+      _prompt_on2valhalla_timer_print=true
     fi
   fi
 
@@ -186,7 +190,7 @@ function prompt_on2valhalla_setup {
   zstyle ':prezto:module:git:info:action' format "! %s "
   zstyle ':prezto:module:git:info:ahead' format "$FP[dk_green]⬆$FP[n] "
   zstyle ':prezto:module:git:info:behind' format "$FP[red]⬇$FP[n] "
-  zstyle ':prezto:module:git:info:branch' format "$FP[black]%b$FP[n]"
+  zstyle ':prezto:module:git:info:branch' format "$FP[brown]%b$FP[n]"
   zstyle ':prezto:module:git:info:commit' format "$FP[grey]⭠ %.7c$FP[n]"
   zstyle ':prezto:module:git:info:position' format "%p "
   zstyle ':prezto:module:git:info:stashed' format "$FP[dk_yellow]↧%S$FP[n] "
@@ -202,7 +206,7 @@ function prompt_on2valhalla_setup {
   zstyle ':prezto:module:git:info:untracked' format "$FP[magenta]∉$FP[n] "
 
   zstyle ':prezto:module:git:info:keys' format \
-    'prompt' "%b%c " \
+    'prompt' "%b%c" \
     'status' "%C%A%B%S%m%a%d%r%U%u"
 
   # Define prompts.

@@ -12,10 +12,6 @@ fi
 
 # Customize to your needs...
 
-# For powerline:
-#. /usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-
-
 # For automated in prompt clock
 # TMOUT=1
 # TRAPALRM() {
@@ -54,6 +50,36 @@ source /etc/bash_completion.d/g4d
 export TERM='xterm-256color'
 compdef g4=p4
 export TBL=/bigtable/srv-yh/content-syndication.content-devel
+bindkey ';5D' emacs-backward-word
+bindkey ';5C' emacs-forward-word
+#Blaze Zsh Completion
+#cache-path must exist
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh/cache
+# If you only want to complete local directories in git5, uncomment the next line
+# export BLAZE_COMPLETION_PACKAGE_PATH=%workspace%
 
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
+
+export IDEA_JDK=/usr/lib/jvm/java-7-openjdk-amd64/
+
+# For powerline:
+# . /usr/local/google/home/jmann/.local/lib/python2.7/site-packages
+
+
+git() { if [[ $1 == 'merge' ]]; then
+	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
+	else command git "$@";
+	fi;
+}
+
+export pipetest=/cns/yh-d/home/jmann/pipeline_test
+
+
+mailme() {
+  echo $1 | mailx jmann@google.com;
+}
+txtme() {
+  echo $1 | mailx 16463925870@tmomail.net;
+}

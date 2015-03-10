@@ -10,3 +10,4 @@ if [[ "$SHLVL" -eq 1 && ! -o LOGIN && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
 
+fpath=(/google/src/files/head/depot/google3/devtools/blaze/scripts/zsh_completion $fpath)
