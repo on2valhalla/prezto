@@ -1,6 +1,4 @@
 #
-# Defines general aliases and functions.
-#
 # Authors:
 #   Robby Russell <robby@planetargon.com>
 #   Suraj N. Kurapati <sunaku@gmail.com>
@@ -56,17 +54,8 @@ alias mv="${aliases[mv]:-mv} -i"
 alias p='${(z)PAGER}'
 alias po='popd'
 alias pu='pushd'
-alias rm="${aliases[rm]:-rm} -i"
+#alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
-
-# PERSONAL STUFF
-alias h='history -10'
-alias g='grep'
-alias hg='history 0 | grep'
-alias ls='gls'
-
-
-
 
 # ls
 if is-callable 'dircolors'; then
@@ -195,3 +184,7 @@ function psu {
   ps -U "${1:-$USER}" -o 'pid,%cpu,%mem,command' "${(@)argv[2,-1]}"
 }
 
+# Personal Stuff
+alias g='grep'
+alias h='history -10'
+alias hg='history 0 | grep'
