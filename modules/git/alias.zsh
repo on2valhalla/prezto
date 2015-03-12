@@ -180,3 +180,8 @@ alias gwC='git clean -f'
 alias gwx='git rm -r'
 alias gwX='git rm -rf'
 
+# GOOGLE STUFF
+alias gi5='git5'
+alias g5e='git5 export'
+alias g5m='git5 mail --no-body -m '
+alias g5s='git5 submit'
