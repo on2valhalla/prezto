@@ -28,6 +28,7 @@ zstyle -s ':prezto:module:git:status:ignore' submodules '_git_status_ignore_subm
 
 # Git
 alias gi='git'
+alias gs='git status'
 
 # Branch (b)
 alias gb='git branch'
@@ -143,18 +144,18 @@ alias gRs='git remote show'
 alias gRb='git-hub-browse'
 
 # Stash (s)
-alias gs='git stash'
-alias gsa='git stash apply'
-alias gsx='git stash drop'
-alias gsX='git-stash-clear-interactive'
-alias gsl='git stash list'
-alias gsL='git-stash-dropped'
-alias gsd='git stash show --patch --stat'
-alias gsp='git stash pop'
-alias gsr='git-stash-recover'
-alias gss='git stash save --include-untracked'
-alias gsS='git stash save --patch --no-keep-index'
-alias gsw='git stash save --include-untracked --keep-index'
+alias gt='git stash'
+alias gta='git stash apply'
+alias gtx='git stash drop'
+alias gtX='git-stash-clear-interactive'
+alias gtl='git stash list'
+alias gtL='git-stash-dropped'
+alias gtd='git stash show --patch --stat'
+alias gtp='git stash pop'
+alias gtr='git-stash-recover'
+alias gts='git stash save --include-untracked'
+alias gtS='git stash save --patch --no-keep-index'
+alias gtw='git stash save --include-untracked --keep-index'
 
 # Submodule (S)
 alias gS='git submodule'
@@ -181,7 +182,8 @@ alias gwx='git rm -r'
 alias gwX='git rm -rf'
 
 # GOOGLE STUFF
-alias gi5='git5'
+alias g5='git5'
 alias g5e='git5 export'
 alias g5m='git5 mail --no-body -m '
 alias g5s='git5 submit'
+alias g5d='git5 diff'
