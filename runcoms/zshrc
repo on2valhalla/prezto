@@ -21,3 +21,13 @@ TMOUT=1
 TRAPALRM() {
   zle reset-prompt
 }
+
+# Use Sublime Text as the default editor.
+export EDITOR="subl -w"
+
+# Add binaries installed via Homebrew to our PATH.
+export PATH=$HOME/homebrew/bin:$PATH
+
+
+alias auth-refresh=~/bin/auth-refresh
+
