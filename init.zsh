@@ -1,4 +1,4 @@
-#
+ #
 # Initializes Prezto.
 #
 # Authors:
