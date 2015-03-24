@@ -26,8 +26,4 @@ TRAPALRM() {
 export EDITOR="subl -w"
 
 # Add binaries installed via Homebrew to our PATH.
-export PATH=$HOME/homebrew/bin:$PATH
-
-
-alias auth-refresh=~/bin/auth-refresh
-
+export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
