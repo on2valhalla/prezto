@@ -10,15 +10,15 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
-
-# For automated in prompt clock
+##############################################################################
+# Automated Prompts
+##############################################################################
+# For automated in prompt clock DEPRECATED (causes terminal freezing)
 # TMOUT=1
 # TRAPALRM() {
 #   zle reset-prompt
-# }
 
-# MUCH CLEANER!!!!!!
+# }# MUCH CLEANER automated prompt
 schedprompt() {
   emulate -L zsh
   zmodload -i zsh/sched
@@ -45,13 +45,15 @@ schedprompt() {
 schedprompt
 
 
+##############################################################################
 # Google Stuff
+##############################################################################
 source /etc/bash_completion.d/g4d
 export TERM='xterm-256color'
 compdef g4=p4
-export TBL=/bigtable/srv-yh/content-syndication.content-devel
 bindkey ';5D' emacs-backward-word
 bindkey ';5C' emacs-forward-word
+
 #Blaze Zsh Completion
 #cache-path must exist
 zstyle ':completion:*' use-cache on
@@ -62,20 +64,11 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
 
-export IDEA_JDK=/usr/lib/jvm/java-7-openjdk-amd64/
-
-# For powerline:
-# . /usr/local/google/home/jmann/.local/lib/python2.7/site-packages
-
-
 git() { if [[ $1 == 'merge' ]]; then
 	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
 	else command git "$@";
 	fi;
 }
-
-export pipetest=/cns/yh-d/home/jmann/pipeline_test
-
 
 mailme() {
   echo $1 | mailx jmann@google.com;
@@ -83,3 +76,25 @@ mailme() {
 txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
+
+# Use Sublime Text as the default editor.
+export EDITOR="subl -w"
+
+# Add binaries installed via Homebrew to our PATH.
+# export PATH=$HOME/bin:$PATH
+export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
+
+##############################################################################
+
+
+
+
+##############################################################################
+# Apparently unused
+##############################################################################
+# export IDEA_JDK=/usr/lib/jvm/java-7-openjdk-amd64/
+# For powerline:
+#. /usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
+##############################################################################
+
+
