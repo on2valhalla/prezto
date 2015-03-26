@@ -56,7 +56,7 @@ alias mv="${aliases[mv]:-mv} -i"
 alias p='${(z)PAGER}'
 alias po='popd'
 alias pu='pushd'
-alias rm="${aliases[rm]:-rm} -i"
+#alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
 
 # ls
@@ -91,13 +91,14 @@ else
 fi
 
 alias l='ls -C'         # Lists in one column, hidden files.
-alias ll='ls -lah'        # Lists human readable sizes.
-alias lr='ll -R'         # Lists human readable sizes, recursively.
-alias la='ll -A'         # Lists human readable sizes, hidden files.
+alias lh='ls -lh'        # Lists human readable sizes.
+alias ll='lh -A'	 # Lists human readable sizes, hidden files.
+alias la='lh -A'         # Lists human readable sizes, hidden files.
+alias lr='lh -R'         # Lists human readable sizes, recursively.
 alias lm='la | "$PAGER"' # Lists human readable sizes, hidden files through pager.
-alias lx='ll -XB'        # Lists sorted by extension (GNU only).
-alias lk='ll -Sr'        # Lists sorted by size, largest last.
-alias lt='ll -tr'        # Lists sorted by date, most recent last.
+alias lx='lh -XB'        # Lists sorted by extension (GNU only).
+alias lk='lh -Sr'        # Lists sorted by size, largest last.
+alias lt='lh -tr'        # Lists sorted by date, most recent last.
 alias lc='lt -c'         # Lists sorted by date, most recent last, shows change time.
 alias lu='lt -u'         # Lists sorted by date, most recent last, shows access time.
 alias sl='ls'            # I often screw this up.

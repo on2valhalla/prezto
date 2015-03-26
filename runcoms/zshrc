@@ -48,9 +48,9 @@ schedprompt
 ##############################################################################
 # Google Stuff
 ##############################################################################
-source /etc/bash_completion.d/g4d
+#source /etc/bash_completion.d/g4d
 export TERM='xterm-256color'
-compdef g4=p4
+#compdef g4=p4
 bindkey ';5D' emacs-backward-word
 bindkey ';5C' emacs-forward-word
 
@@ -64,11 +64,11 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
 
-git() { if [[ $1 == 'merge' ]]; then
-	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
-	else command git "$@";
-	fi;
-}
+#git() { if [[ $1 == 'merge' ]]; then
+#	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
+#	else command git "$@";
+#	fi;
+#}
 
 mailme() {
   echo $1 | mailx jmann@google.com;
