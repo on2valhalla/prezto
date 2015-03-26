@@ -17,8 +17,9 @@ fi
 # TMOUT=1
 # TRAPALRM() {
 #   zle reset-prompt
+# }
 
-# }# MUCH CLEANER automated prompt
+# MUCH CLEANER!!!!!!
 schedprompt() {
   emulate -L zsh
   zmodload -i zsh/sched
@@ -60,6 +61,7 @@ bindkey ';5C' emacs-forward-word
 #cache-path must exist
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh/cache
+
 # If you only want to complete local directories in git5, uncomment the next line
 # export BLAZE_COMPLETION_PACKAGE_PATH=%workspace%
 
@@ -78,21 +80,24 @@ git() { if [[ $1 == 'merge' ]]; then
 alias reload=". ~/.zshrc && echo 'ZSH config reloaded from ~/.zshrc'"
 alias zshrc="vim ~/.zshrc && reload"
 alias rc="zshrc"
+
 mailme() {
   echo $1 | mailx jmann@google.com;
 }
+
 txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
+
+# Use Sublime Text as the default editor.
+# Need to fix this to only work when not in ssh sessions
+# export EDITOR="subl -w"
 
 add_notify() {
   pid=$1;
   name=$(ps -p $pid -o comm=);
   (while kill -0 $pid; do sleep 1; done) && txtme "job: $name finished";
 }
-
-# Use Sublime Text as the default editor.
-export EDITOR="subl -w"
 
 # Add binaries installed via Homebrew to our PATH.
 export PATH=$HOME/bin:$PATH
