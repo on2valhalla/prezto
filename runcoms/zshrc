@@ -44,13 +44,15 @@ schedprompt() {
 
 schedprompt
 
+autoload -U url-quote-magic
+zle -N self-insert url-quote-magic
 
 ##############################################################################
 # Google Stuff
 ##############################################################################
-#source /etc/bash_completion.d/g4d
+source /etc/bash_completion.d/g4d
 export TERM='xterm-256color'
-#compdef g4=p4
+compdef g4=p4
 bindkey ';5D' emacs-backward-word
 bindkey ';5C' emacs-forward-word
 
@@ -61,15 +63,21 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 # If you only want to complete local directories in git5, uncomment the next line
 # export BLAZE_COMPLETION_PACKAGE_PATH=%workspace%
 
-autoload -U url-quote-magic
-zle -N self-insert url-quote-magic
+git() { if [[ $1 == 'merge' ]]; then
+	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
+	else command git "$@";
+	fi;
+}
 
-#git() { if [[ $1 == 'merge' ]]; then
-#	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
-#	else command git "$@";
-#	fi;
-#}
+##############################################################################
 
+
+##############################################################################
+# Personal Stuff
+
+alias reload=". ~/.zshrc && echo 'ZSH config reloaded from ~/.zshrc'"
+alias zshrc="vim ~/.zshrc && reload"
+alias rc="zshrc"
 mailme() {
   echo $1 | mailx jmann@google.com;
 }
@@ -77,24 +85,23 @@ txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
 
+add_notify() {
+  pid=$1;
+  name=$(ps -p $pid -o comm=);
+  (while kill -0 $pid; do sleep 1; done) && txtme "job: $name finished";
+}
+
 # Use Sublime Text as the default editor.
 export EDITOR="subl -w"
 
 # Add binaries installed via Homebrew to our PATH.
-# export PATH=$HOME/bin:$PATH
-export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
+export PATH=$HOME/bin:$PATH
+#export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
+
+
+# Testing keyboard shortcuts
+# Needed for moving words with control-left/right in byobu
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
 
 ##############################################################################
-
-
-
-
-##############################################################################
-# Apparently unused
-##############################################################################
-# export IDEA_JDK=/usr/lib/jvm/java-7-openjdk-amd64/
-# For powerline:
-#. /usr/local/lib/python2.7/site-packages/powerline/bindings/zsh/powerline.zsh
-##############################################################################
-
-
