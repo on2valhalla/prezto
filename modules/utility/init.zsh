@@ -58,6 +58,7 @@ alias po='popd'
 alias pu='pushd'
 alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
+alias less='less -FX'
 
 # ls
 if is-callable 'dircolors'; then
@@ -94,7 +95,7 @@ alias l='ls -C'         # Lists in one column, hidden files.
 alias ll='ls -lah'        # Lists human readable sizes.
 alias lr='ll -R'         # Lists human readable sizes, recursively.
 alias la='ll -A'         # Lists human readable sizes, hidden files.
-alias lm='la | "$PAGER"' # Lists human readable sizes, hidden files through pager.
+lm () { if [ -z $1 ] ; then la | ${PAGER} ; else la ${1} | ${PAGER} ; fi} # la ${1} | ${(z)PAGER}; fi } # Lists human readable sizes, hidden files through pager.
 alias lx='ll -XB'        # Lists sorted by extension (GNU only).
 alias lk='ll -Sr'        # Lists sorted by size, largest last.
 alias lt='ll -tr'        # Lists sorted by date, most recent last.
