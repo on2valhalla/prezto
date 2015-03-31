@@ -64,7 +64,6 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 
 # If you only want to complete local directories in git5, uncomment the next line
 # export BLAZE_COMPLETION_PACKAGE_PATH=%workspace%
-
 git() { if [[ $1 == 'merge' ]]; then
 	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
 	else command git "$@";
@@ -76,7 +75,7 @@ git() { if [[ $1 == 'merge' ]]; then
 
 ##############################################################################
 # Personal Stuff
-
+##############################################################################
 alias reload=". ~/.zshrc && echo 'ZSH config reloaded from ~/.zshrc'"
 alias zshrc="vim ~/.zshrc && reload"
 alias rc="zshrc"
@@ -84,14 +83,9 @@ alias rc="zshrc"
 mailme() {
   echo $1 | mailx jmann@google.com;
 }
-
 txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
-
-# Use Sublime Text as the default editor.
-# Need to fix this to only work when not in ssh sessions
-# export EDITOR="subl -w"
 
 add_notify() {
   pid=$1;
@@ -99,14 +93,17 @@ add_notify() {
   (while kill -0 $pid; do sleep 1; done) && txtme "job: $name finished";
 }
 
-# Add binaries installed via Homebrew to our PATH.
+# Use Sublime Text as the default editor.
+# Need to fix this to only work when not in ssh sessions
+#export EDITOR="subl -w"
+
+# Add binaries installed via Homebrew to our PATH (OSX ONLY).
+# And your own personal scripts.
 export PATH=$HOME/bin:$PATH
 #export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
-
 
 # Testing keyboard shortcuts
 # Needed for moving words with control-left/right in byobu
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
-
 ##############################################################################
