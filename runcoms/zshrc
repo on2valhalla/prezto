@@ -48,9 +48,6 @@ schedprompt
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
 
-# This is for your own personal scripts
-export PATH=~/bin:$PATH
-
 ##############################################################################
 # Google Stuff
 ##############################################################################
@@ -74,6 +71,11 @@ git() { if [[ $1 == 'merge' ]]; then
 }
 ##############################################################################
 
+#git() { if [[ $1 == 'merge' ]]; then
+#	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
+#	else command git "$@";
+#	fi;
+#}
 
 ##############################################################################
 # Personal Stuff
@@ -84,19 +86,21 @@ txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
 
-# Use Sublime Text as the default editor.
-# Need to fix this to only work when not in ssh sessions
-#export EDITOR="subl -w"
-
 add_notify() {
   pid=$1;
   name=$(ps -p $pid -o comm=);
   (while kill -0 $pid; do sleep 1; done) && txtme "job: $name finished";
 }
 
-# Add binaries installed via Homebrew to our PATH.
+# Use Sublime Text as the default editor.
+# Need to fix this to only work when not in ssh sessions
+#export EDITOR="subl -w"
+
+# Add binaries installed via Homebrew to our PATH (OSX ONLY).
+# And your own personal scripts.
 export PATH=$HOME/bin:$PATH
 #export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
+
 
 alias reload=". ~/.zshrc && echo 'ZSH config reloaded from ~/.zshrc'"
 alias zshrc="vim ~/.zshrc && reload"
