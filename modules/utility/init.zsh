@@ -189,5 +189,6 @@ function psu {
 
 # Personal Stuff
 alias g='grep'
+alias history='history -E -D'
 alias h='history -10'
 alias hg='history 0 | grep'
