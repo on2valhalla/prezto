@@ -79,7 +79,8 @@ add-notify() {
 
 # Use Sublime Text as the default editor.
 # Need to fix this to only work when not in ssh sessions
-#export EDITOR="subl -w"
+# export EDITOR="subl -w"
+export EDITOR=vim
 
 # Add binaries installed via Homebrew to our PATH (OSX ONLY).
 # And your own personal scripts.
