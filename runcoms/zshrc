@@ -63,8 +63,9 @@ alias rc="zshrc"
 mailme() {
   echo $1 | mailx jmann@google.com;
 }
+
 txtme() {
-  echo $1 | mailx 16463925870@tmomail.net;
+  curl http://textbelt.com/text -d number=6463925870 -d "message=$1";echo message sent;
 }
 
 add-notify() {
