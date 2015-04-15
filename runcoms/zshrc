@@ -48,30 +48,10 @@ schedprompt
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
 
-##############################################################################
-# Google Stuff
-##############################################################################
-source /etc/bash_completion.d/g4d
-export TERM='xterm-256color'
-compdef g4=p4
-bindkey ';5D' emacs-backward-word
-bindkey ';5C' emacs-forward-word
-
-#Blaze Zsh Completion
-#cache-path must exist
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zsh/cache
-
-# If you only want to complete local directories in git5, uncomment the next line
-# export BLAZE_COMPLETION_PACKAGE_PATH=%workspace%
-git() { if [[ $1 == 'merge' ]]; then
-	echo 'Use git5 merge, not git merge. git merge does not understand how to merge the READONLY link and it can corrupt your branch, so stay away from it.  type "unset -f git" to remove this warning';
-	else command git "$@";
-	fi;
-}
-
-##############################################################################
-
+# Source Google specific stuff.
+if [[ -s "${HOME}/.googlerc" ]]; then
+  source "${HOME}/.googlerc"
+fi
 
 ##############################################################################
 # Personal Stuff
@@ -87,10 +67,14 @@ txtme() {
   echo $1 | mailx 16463925870@tmomail.net;
 }
 
-add_notify() {
+add-notify() {
   pid=$1;
+  if ! kill -0 $pid ; then echo "job $pid not found" ; return 1 ; fi
   name=$(ps -p $pid -o comm=);
-  (while kill -0 $pid; do sleep 1; done) && txtme "job: $name finished";
+  set +e;
+  while kill -0 $pid; do sleep 1; done;
+  set -e;
+  txtme "job: $name finished";
 }
 
 # Use Sublime Text as the default editor.
