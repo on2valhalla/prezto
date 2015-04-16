@@ -126,7 +126,7 @@ function prompt_on2valhalla_preexec {
 
 # Executes before each prompt
 function prompt_on2valhalla_precmd {
-  prompt_on2valhalla_set_rprompt '[%*]'
+  prompt_on2valhalla_set_rprompt '[%D{%H:%M:%S}]'
 
   if [[ "$_prompt_on2valhalla_timer_print" = true ]]; then
     # Reset the rprompt if the timer changed it
