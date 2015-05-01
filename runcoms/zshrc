@@ -10,6 +10,11 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
+# Prevent cases where byobu sets
+if [[ "$TERM" = "screen" ]]; then
+  export TERM=screen-256color
+fi
+
 ##############################################################################
 # Automated Prompts
 ##############################################################################
@@ -65,16 +70,18 @@ mailme() {
 }
 
 txtme() {
-  curl http://textbelt.com/text -d number=6463925870 -d "message=$1";echo message sent;
+  curl --silent --output /dev/null http://textbelt.com/text -d number=6463925870 -d "message=$1" && echo "message sent"
+}
+
+wait-pid() {
+  while [[ ( -d /proc/$pid ) ]]; do sleep .5; done;
 }
 
 add-notify() {
   pid=$1;
-  if ! kill -0 $pid ; then echo "job $pid not found" ; return 1 ; fi
+  if [[ ! ( -d /proc/$pid ) ]] ; then echo "job $pid not found" ; return 1 ; fi
   name=$(ps -p $pid -o comm=);
-  set +e;
-  while kill -0 $pid; do sleep 1; done;
-  set -e;
+  wait-pid ${pid}
   txtme "job: $name finished";
 }
 
