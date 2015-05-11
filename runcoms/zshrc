@@ -47,11 +47,25 @@ schedprompt() {
   # This ensures we're not too far off the start of the minute
   sched +1 schedprompt
 }
-
 schedprompt
 
+
+
+##############################################################################
+# Some ZSH options
+##############################################################################
 autoload -U url-quote-magic
 zle -N self-insert url-quote-magic
+
+# Fix for ubuntu skip word movement probably need to remove this for Mac, or
+# flag guard it at least
+bindkey ';5D' emacs-backward-word
+bindkey ';5C' emacs-forward-word
+
+#Blaze Zsh Completion
+#cache-path must exist
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh/cache
 
 # Source Google specific stuff.
 if [[ -s "${HOME}/.googlerc" ]]; then
