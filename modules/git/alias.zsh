@@ -45,7 +45,7 @@ alias gbS='git show-branch -a'
 # Commit (c)
 alias gc='git commit --verbose'
 alias gca='git commit --verbose --all'
-alias gcm='git commit --message'
+alias gcm='gca --message'
 alias gco='git checkout'
 alias gcO='git checkout --patch'
 alias gcf='git commit --amend --reuse-message HEAD'
@@ -67,7 +67,10 @@ alias gCt='git checkout --theirs --'
 alias gCT='gCt $(gCl)'
 
 # Data (d)
-alias gd='git ls-files'
+alias gls='git ls-files'
+alias gd='git diff'
+alias gdt='git difftool'
+
 alias gdc='git ls-files --cached'
 alias gdx='git ls-files --deleted'
 alias gdm='git ls-files --modified'
@@ -102,7 +105,8 @@ alias giX='git rm -rf --cached'
 
 # Log (l)
 alias gl='git log --topo-order --pretty=format:${_git_log_medium_format}'
-alias gls='git log --topo-order --stat --pretty=format:${_git_log_medium_format}'
+# Reserve gls for git ls-files
+# alias gls='git log --topo-order --stat --pretty=format:${_git_log_medium_format}'
 alias gld='git log --topo-order --stat --patch --full-diff --pretty=format:${_git_log_medium_format}'
 alias glo='git log --topo-order --pretty=format:${_git_log_oneline_format}'
 alias glg='git log --topo-order --all --graph --pretty=format:${_git_log_oneline_format}'
@@ -181,9 +185,3 @@ alias gwC='git clean -f'
 alias gwx='git rm -r'
 alias gwX='git rm -rf'
 
-# GOOGLE STUFF
-alias g5='git5'
-alias g5e='git5 export'
-alias g5m='git5 mail --no-body -m '
-alias g5s='git5 submit'
-alias g5d='git5 diff'

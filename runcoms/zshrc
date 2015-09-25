@@ -10,9 +10,11 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Prevent cases where byobu sets
+# Prevent cases where byobu sets TERM, or where default options dont show colors
 if [[ "$TERM" = "screen" ]]; then
   export TERM=screen-256color
+elif [[ "$TERM" = "xterm" ]]; then
+  export TERM=xterm-256color
 fi
 
 ##############################################################################
@@ -32,7 +34,7 @@ schedprompt() {
   # Remove existing event, so that multiple calls to
   # "schedprompt" work OK.  (You could put one in precmd to push
   # the timer 30 seconds into the future, for example.)
-  integer i=${"${(@)zsh_scheduled_events#*:*:}"[(I)schedprompt]}
+  integer i=${${(@)zsh_scheduled_events#*:*:}[(I)schedprompt]}
   (( i )) && sched -$i
 
   # if [[ $_prompt_on2valhalla_timer -gt 900 ]]; then
@@ -44,6 +46,7 @@ schedprompt() {
   # Otherwise it updates on entry to zle, so there's no loss.
   zle && zle reset-prompt
 
+  sleep .1
   # This ensures we're not too far off the start of the minute
   sched +1 schedprompt
 }
@@ -100,17 +103,71 @@ add-notify() {
 }
 
 # Use Sublime Text as the default editor.
-# Need to fix this to only work when not in ssh sessions
+# TODO(jmann) Need to fix this to only work when not in ssh sessions
 # export EDITOR="subl -w"
 export EDITOR=vim
 
 # Add binaries installed via Homebrew to our PATH (OSX ONLY).
 # And your own personal scripts.
-export PATH=$HOME/bin:$PATH
-#export PATH=$HOME/homebrew/bin:$PATH:$HOME/bin
+if [[ ! "$PATH" == *"${HOME}/bin"* ]]; then
+  export PATH=$HOME/bin:$PATH
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  export PATH=$HOME/homebrew/bin:$PATH
+fi
 
 # Testing keyboard shortcuts
 # Needed for moving words with control-left/right in byobu
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
+
+# Workaround function for updating stale environment variables in byobu and
+# tmux
+function update-environment {
+  # Update the byobu ssh-agent
+  [[ ! ( -e /usr/local/google/home/$USER/.byobu/.ssh-agent ) ]] \
+      && ln -fs /tmp/ssh-*/* /usr/local/google/home/$USER/.byobu/.ssh-agent \
+      && echo "Byobu ssh-agent refreshed"
+
+  # Fix an unattached display
+  if [[ -z "$DISPLAY" ]]; then
+    export DISPLAY=":0"
+  fi
+
+  # Fix SSH_CONNECTION
+  # TODO(jmann): make this test less hacky and use getopts
+  if [[ "$1" = "-s" ]]; then
+    unset SSH_CONNECTION
+    tmux setenv -u SSH_CONNECTION
+  fi
+
+  # Fix local vars
+  local v
+  while read v; do
+    if [[ $v == -* ]]; then
+      unset ${v/#-/}
+      tmux setenv -u ${v/#-/}
+    elif [[ -n "$v" ]]; then
+      # Surround value with quotes
+      v=${v/"="/"=\""}
+      v=${v/%/\"}
+      eval export $v
+    fi
+  done < <(tmux show-environment)
+  echo "Environment Refreshed"
+}
+alias ue=update-environment
+
+
+find-grep() {
+  local dir text
+  dir=$1
+  text=$2
+  find $dir -xdev -type f -print0 | xargs -0 grep --color=always -H "$text" | less -R
+}
+alias fgr=find-grep
+
 ##############################################################################
+
+GOPATH=/usr/local/google/home/jmann/gocode
