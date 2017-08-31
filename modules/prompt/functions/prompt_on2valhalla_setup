@@ -57,12 +57,10 @@ function prompt_on2valhalla_set_rprompt {
 ############################################################
 # Makes more sense to only update PWD when we change dirs
 # Make PWD single letter dirs except last -sorin
-CITC_ROOT=/google/src/cloud/${USER}
+CITC_ROOT=/google/src/cloud
 SRCFS_HEAD_ROOT=/google/src/head/depot
 function prompt_on2valhalla_pwd {
-  # print $PWD
   local prompt_dir="$PWD"
-  # print $prompt_dir
   local home='~/'
 
   case $prompt_dir in
@@ -71,38 +69,24 @@ function prompt_on2valhalla_pwd {
       _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${${${(@j:/:M)${(@s:/:)prompt_dir##$HOME\/}##.#?}:h}%\.}/${prompt_dir:t};;
     $HOME/*)
       _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${${${(@j:/:M)${(@s:/:)prompt_dir##$HOME\/}##.#?}:h}%\.}${prompt_dir:t};;
-      # _prompt_on2valhalla_pwd=$FP[pink]'~/'$FP[blue]${prompt_dir##$HOME\/};;
-    $CITC_ROOT) _prompt_on2valhalla_pwd=$FP[pink]'citc~';;
-    $CITC_ROOT/*)
-      prompt_dir=${prompt_dir##$CITC_ROOT/};
-      local client=${prompt_dir%%\/*};
-      local r_dir=${${prompt_dir##$client(\/|)}/google3/g3};
+    $CITC_ROOT/${USER})
+      _prompt_on2valhalla_pwd=$FP[pink]'citc~';;
+    $CITC_ROOT/${USER}/*)
+      without_citc=${prompt_dir##${CITC_ROOT}/${USER}/};
+      local client=${without_citc%%\/*};
+      local r_dir=${${without_citc##$client(\/|)}/google3/g3};
       _prompt_on2valhalla_pwd=$FP[pink]$client':'$FP[blue]$r_dir$FP[n];;
-    *) _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)prompt_dir}##.#?}:h}%/}/${prompt_dir:t}" ;;
+    $CITC_ROOT/*/*)
+      without_citc=${prompt_dir##$CITC_ROOT/};
+      local user=${without_citc%%/*};
+      local client=${${without_citc#*/}%/*};
+      local r_dir=${without_citc#$user/$client};
+      r_dir=${r_dir#/};
+      r_dir=${r_dir/google3/g3}
+      _prompt_on2valhalla_pwd=$FP[orange]$user':'$FP[pink]$client':'$FP[blue]$r_dir$FP[n];;
+    *)
+      _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)prompt_dir}##.#?}:h}%/}/${prompt_dir:t}" ;;
   esac
-
-  # if [[ $prompt_dir = $HOME ]]; then
-  #   _prompt_on2valhalla_pwd="~"
-  # elif [[ $prompt_dir = $HOME(#b)/(**/*) ]]; then
-  #   _prompt_on2valhalla_pwd="~/"$match[1]
-  # elif [[ $prompt_dir = $CITC_ROOT ]]; then
-  #   _prompt_on2valhalla_pwd='citc:'
-  # elif [[ $prompt_dir = $CITC_ROOT/ ]]; then
-  #   #statements
-  #   #statements
-  # # if [ "${prompt_dir/$CITC_ROOT}" ]
-
-  # if [ "$prompt_dir" = "~" ]; then
-  #   _prompt_on2valhalla_pwd="$prompt_dir"
-  # # elif [[ "$prompt_dir" =~ "/google/src/cloud/jmann/*/*" ]]; then
-  # #   #replace google src with shortening
-  # #   local path_prompt=$(print -P '%~')
-  # #   local subst=${path_prompt/#${CITC_ROOT}/citc:}
-  # #   _prompt_on2valhalla_pwd=${path_prompt/#${SRCFS_HEAD_ROOT}/srcfs-head:}
-  # else
-  #   _prompt_on2valhalla_pwd="${${${(@j:/:M)${(@s:/:)prompt_dir}##.#?}:h}%/}/${prompt_dir:t}"
-  #   # print $_prompt_on2valhalla_pwd
-  # fi
 }
 
 # For more sane git checks:

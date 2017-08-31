@@ -6,10 +6,7 @@
 #
 
 # Print the message.
-cat <<-EOF
-
+print -Pn "$FP[yellow]
 All your base are belong to us....
     You have no chance to survive make your time.
-     -CATS
-EOF
-
+     -CATS$FP[none]"

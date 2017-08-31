@@ -17,16 +17,19 @@ elif [[ "$TERM" = "xterm" ]]; then
   export TERM=xterm-256color
 fi
 
+# Detect secure shell
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ] || [ -n "$SSH_CONNECTION" ]; then
+  SESSION_TYPE=local
+else
+  case $(ps -o comm= -p $PPID) in
+    sshd|*/sshd) SESSION_TYPE=remote/ssh;;
+  esac
+fi
+
 ##############################################################################
 # Automated Prompts
 ##############################################################################
-# For automated in prompt clock DEPRECATED (causes terminal freezing)
-# TMOUT=1
-# TRAPALRM() {
-#   zle reset-prompt
-# }
-
-# MUCH CLEANER!!!!!!
+SCHEDPROMPT=1
 schedprompt() {
   emulate -L zsh
   zmodload -i zsh/sched
@@ -48,7 +51,10 @@ schedprompt() {
 
   sleep .1
   # This ensures we're not too far off the start of the minute
-  sched +1 schedprompt
+  if [[ $SCHEDPROMPT -eq 1 ]]
+    then
+    sched +1 schedprompt
+  fi
 }
 schedprompt
 
@@ -78,9 +84,22 @@ fi
 ##############################################################################
 # Personal Stuff
 ##############################################################################
-alias reload=". ~/.zshrc && echo 'ZSH config reloaded from ~/.zshrc'"
-alias zshrc="vim ~/.zshrc && reload"
+alias reload="exec zsh --login"
+alias zshrc="$EDITOR ~/.zshrc && reload"
 alias rc="zshrc"
+alias googlerc="$EDITOR ~/.googlerc && reload"
+
+run() {
+  if [[ $# -lt 2 ]]; then
+    echo "Usage: run [num_times] [command]"
+    return 1
+  fi
+  number=$1
+  shift
+  for i in $(seq $number); do
+    $@
+  done
+}
 
 mailme() {
   echo $1 | mailx jmann@google.com;
@@ -103,61 +122,25 @@ add-notify() {
 }
 
 # Use Sublime Text as the default editor.
-# TODO(jmann) Need to fix this to only work when not in ssh sessions
-# export EDITOR="subl -w"
+# if [[ "$SESSION_TYPE" = "remote/ssh" ]]; then
 export EDITOR=vim
+# else
+# 	export EDITOR="subl -w"
+# fi
 
-# Add binaries installed via Homebrew to our PATH (OSX ONLY).
 # And your own personal scripts.
 if [[ ! "$PATH" == *"${HOME}/bin"* ]]; then
   export PATH=$HOME/bin:$PATH
 fi
 
+# Add binaries installed via Homebrew to our PATH (OSX ONLY).
 if [[ "$OSTYPE" == "darwin"* ]]; then
   export PATH=$HOME/homebrew/bin:$PATH
 fi
 
-# Testing keyboard shortcuts
 # Needed for moving words with control-left/right in byobu
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
-
-# Workaround function for updating stale environment variables in byobu and
-# tmux
-function update-environment {
-  # Update the byobu ssh-agent
-  [[ ! ( -e /usr/local/google/home/$USER/.byobu/.ssh-agent ) ]] \
-      && ln -fs /tmp/ssh-*/* /usr/local/google/home/$USER/.byobu/.ssh-agent \
-      && echo "Byobu ssh-agent refreshed"
-
-  # Fix an unattached display
-  if [[ -z "$DISPLAY" ]]; then
-    export DISPLAY=":0"
-  fi
-
-  # Fix SSH_CONNECTION
-  # TODO(jmann): make this test less hacky and use getopts
-  if [[ "$1" = "-s" ]]; then
-    unset SSH_CONNECTION
-    tmux setenv -u SSH_CONNECTION
-  fi
-
-  # Fix local vars
-  local v
-  while read v; do
-    if [[ $v == -* ]]; then
-      unset ${v/#-/}
-      tmux setenv -u ${v/#-/}
-    elif [[ -n "$v" ]]; then
-      # Surround value with quotes
-      v=${v/"="/"=\""}
-      v=${v/%/\"}
-      eval export $v
-    fi
-  done < <(tmux show-environment)
-  echo "Environment Refreshed"
-}
-alias ue=update-environment
 
 
 find-grep() {
@@ -168,6 +151,34 @@ find-grep() {
 }
 alias fgr=find-grep
 
-##############################################################################
+yellow-print() {
+  text=$@
+  yellow='\033[0;33m'
+  no_color='\033[0m' # No Color
+  printf "$yellow$text$no_color\n"
+}
 
-GOPATH=/usr/local/google/home/jmann/gocode
+# wrapper for command line calc
+solve() {
+  calc="${@//p/+}"
+  calc="${calc//m/-}"
+  calc="${calc//d//}"
+  calc="${calc//x/*}"
+  echo $calc
+  bc -l <<< "scale=10;$calc"
+}
+alias c=solve
+
+# random-lines N FILE
+# chooses N random lines from FILE
+random-lines() {
+  sort -R $2 | head -n $1
+}
+
+reset-path() {
+  PATH=/usr/local/bin:/usr/bin:/bin:/usr/lib/google-golang/bin:/usr/local/buildtools/java/jdk/bin:/usr/local/sbin:/usr/sbin:/sbin
+  reload
+}
+
+##############################################################################
+export GOPATH=/usr/local/google/home/jmann/gocode

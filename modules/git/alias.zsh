@@ -55,7 +55,6 @@ alias gcP='git cherry-pick --no-commit'
 alias gcr='git revert'
 alias gcR='git reset "HEAD^"'
 alias gcs='git show'
-alias gcl='git-commit-lost'
 
 # Conflict (C)
 alias gCl='git status | sed -n "s/^.*both [a-z]*ed: *//p"'
@@ -66,8 +65,6 @@ alias gCO='gCo $(gCl)'
 alias gCt='git checkout --theirs --'
 alias gCT='gCt $(gCl)'
 
-# Data (d)
-alias gls='git ls-files'
 alias gd='git diff'
 alias gdt='git difftool'
 
@@ -103,10 +100,10 @@ alias giR='git reset --patch'
 alias gix='git rm -r --cached'
 alias giX='git rm -rf --cached'
 
+alias gls='git ls-files'
+
 # Log (l)
 alias gl='git log --topo-order --pretty=format:${_git_log_medium_format}'
-# Reserve gls for git ls-files
-# alias gls='git log --topo-order --stat --pretty=format:${_git_log_medium_format}'
 alias gld='git log --topo-order --stat --patch --full-diff --pretty=format:${_git_log_medium_format}'
 alias glo='git log --topo-order --pretty=format:${_git_log_oneline_format}'
 alias glg='git log --topo-order --all --graph --pretty=format:${_git_log_oneline_format}'
@@ -132,7 +129,7 @@ alias gpp='git pull origin "$(git-branch-current 2> /dev/null)" && git push orig
 # Rebase (r)
 alias gr='git rebase'
 alias gra='git rebase --abort'
-alias grc='git rebase --continue'
+# alias grc='git rebase --continue'
 alias gri='git rebase --interactive'
 alias grs='git rebase --skip'
 
@@ -147,7 +144,7 @@ alias gRp='git remote prune'
 alias gRs='git remote show'
 alias gRb='git-hub-browse'
 
-# Stash (s)
+# Stash (t)
 alias gt='git stash'
 alias gta='git stash apply'
 alias gtx='git stash drop'

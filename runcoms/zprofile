@@ -21,11 +21,6 @@ export EDITOR='vim'
 export VISUAL='vim'
 export PAGER='less'
 
-
-# PERSONAL STUFF
-alias h='history -10'
-alias hg='history 0| grep'
-
 # Multithreaded tar command with progress bar
 function mptr() {
   local f
@@ -90,6 +85,3 @@ if [[ ! -d "$TMPPREFIX" ]]; then
   mkdir -p "$TMPPREFIX"
 fi
 
-# GOOGLE STUFF
-export G4MULTIDIFF=1
-export P4DIFF="/home/build/google3/devtools/g4scripts/g4meld.py"

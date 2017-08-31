@@ -48,7 +48,6 @@ alias sftp='noglob sftp'
 # Define general aliases.
 alias _='sudo'
 alias b='${(z)BROWSER}'
-# alias cp="${aliases[cp]:-cp} -i"
 alias e='${(z)VISUAL:-${(z)EDITOR}}'
 alias ln="${aliases[ln]:-ln} -i"
 alias mkdir="${aliases[mkdir]:-mkdir} -p"
@@ -56,9 +55,21 @@ alias mv="${aliases[mv]:-mv} -i"
 alias p='${(z)PAGER}'
 alias po='popd'
 alias pu='pushd'
-#alias rm="${aliases[rm]:-rm} -i"
 alias type='type -a'
-alias less='less -F -X'
+
+# PERSONAL STUFF
+#alias less='less -F'
+alias h='fc -l'
+alias g='grep'
+alias hg='fc -l 1 | grep'
+alias ls='gls'
+
+alias cd..='cd ..'
+alias ..='cd ..'
+alias ...='.. && ..'
+alias ....='... && cd ..'
+
+
 
 # ls
 if is-callable 'dircolors'; then
@@ -72,7 +83,7 @@ if is-callable 'dircolors'; then
       eval "$(dircolors)"
     fi
 
-    alias ls="$aliases[ls] --color=auto"
+    alias ls="$aliases[ls] --color=always"
   else
     alias ls="$aliases[ls] -F"
   fi
@@ -186,9 +197,3 @@ function find-exec {
 function psu {
   ps -U "${1:-$USER}" -o 'pid,%cpu,%mem,command' "${(@)argv[2,-1]}"
 }
-
-# Personal Stuff
-alias g='grep'
-alias history='history -E -D'
-alias h='history -10'
-alias hg='history 0 | grep'

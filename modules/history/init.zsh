@@ -12,7 +12,7 @@
 
 HISTFILE="${ZDOTDIR:-$HOME}/.zhistory"       # The path to the history file.
 HISTSIZE=10000                   # The maximum number of events to save in the internal history.
-SAVEHIST=10000                   # The maximum number of events to save in the history file.
+SAVEHIST=100000                   # The maximum number of events to save in the history file.
 
 #
 # Options
@@ -36,4 +36,4 @@ setopt HIST_BEEP                 # Beep when accessing non-existent history.
 #
 
 # Lists the ten most used commands.
-alias history-stat="history 0 | awk '{print \$2}' | sort | uniq -c | sort -n -r | head"
+alias history-stat="history 0 | awk '{print \$2}' | sort | uniq -c | sort -n -r | head -100"
